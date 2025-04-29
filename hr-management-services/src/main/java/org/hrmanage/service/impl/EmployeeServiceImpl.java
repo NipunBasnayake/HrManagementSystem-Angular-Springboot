@@ -5,6 +5,7 @@ import org.hrmanage.dto.EmployeeDto;
 import org.hrmanage.entity.EmployeeEntity;
 import org.hrmanage.repository.EmployeeRepository;
 import org.hrmanage.service.EmployeeService;
+import org.hrmanage.util.DepartmentType;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -43,11 +44,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeDto updateEmployee(EmployeeDto employeeDto) {
-        if (employeeRepository.existsById(employeeDto.getId())) {
-            EmployeeEntity savedEntity = employeeRepository.save(modelMapper.map(employeeDto, EmployeeEntity.class));
-            return modelMapper.map(savedEntity, EmployeeDto.class);
-        }
+    public EmployeeDto updateEmployee(Integer id, EmployeeDto employeeDto) {
+        if (employeeRepository.existsById(id) && id.equals(employeeDto.getId())) {
+                EmployeeEntity savedEntity = employeeRepository.save(modelMapper.map(employeeDto, EmployeeEntity.class));
+                return modelMapper.map(savedEntity, EmployeeDto.class);
+            }
         return null;
     }
 
@@ -58,5 +59,16 @@ public class EmployeeServiceImpl implements EmployeeService {
             return !employeeRepository.existsById(id);
         }
         return false;
+    }
+
+    @Override
+    public List<EmployeeDto> findByDepartmentType(DepartmentType department) {
+        if (department == null) {
+            return List.of();
+        }
+        List<EmployeeEntity> employeeByDepartmentType = employeeRepository.findEmployeesByDepartmentType(department);
+        List<EmployeeDto> employeeDtoList = new ArrayList<>();
+        employeeByDepartmentType.forEach(employeeEntity -> employeeDtoList.add(modelMapper.map(employeeEntity, EmployeeDto.class)));
+        return employeeDtoList;
     }
 }

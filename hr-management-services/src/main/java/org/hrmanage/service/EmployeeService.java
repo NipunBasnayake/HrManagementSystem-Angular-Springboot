@@ -1,6 +1,7 @@
 package org.hrmanage.service;
 
 import org.hrmanage.dto.EmployeeDto;
+import org.hrmanage.util.DepartmentType;
 
 import java.util.List;
 
@@ -12,7 +13,9 @@ public interface EmployeeService {
 
     EmployeeDto addEmployee(EmployeeDto employeeDto);
 
-    EmployeeDto updateEmployee(EmployeeDto employeeDto);
+    EmployeeDto updateEmployee(Integer id, EmployeeDto employeeDto);
 
     Boolean deleteEmployee(Integer id);
+
+    List<EmployeeDto> findByDepartmentType(DepartmentType department);
 }

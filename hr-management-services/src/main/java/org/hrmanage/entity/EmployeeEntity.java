@@ -26,9 +26,9 @@ public class EmployeeEntity {
     @Pattern(regexp = "^[A-Za-z ]+$", message = "Name can only contains alphabetic characters and spaces")
     String name;
 
+    @Column(unique = true)
     @NotNull(message = "Email must be insert")
     @Pattern( regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Invalid email format")
-    @Column(unique = true)
     String email;
 
     @NotNull(message = "Department must be insert")
