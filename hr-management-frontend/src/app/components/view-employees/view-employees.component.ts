@@ -49,25 +49,16 @@ export class ViewEmployeesComponent {
       html: `
         <div class="mb-3">
             <div class="input-group">
-              <div class="input-group-icon">
-                <i class="fas fa-user"></i>
-              </div>
               <input type="text" id="swal-name" class="form-control" placeholder="Enter full name">
             </div>
           </div>
           <div class="mb-3">
             <div class="input-group">
-              <div class="input-group-icon">
-                <i class="fas fa-envelope"></i>
-              </div>
               <input type="email" id="swal-email" class="form-control" placeholder="Enter email address">
             </div>
           </div>
           <div class="mb-3">
             <div class="input-group">
-              <div class="input-group-icon">
-                <i class="fas fa-building"></i>
-              </div>
               <select id="swal-dept" class="form-select">
                 <option value="" disabled selected>Select Department</option>
                 <option value="HR">HR</option>
@@ -138,25 +129,16 @@ export class ViewEmployeesComponent {
       html: `
         <div class="mb-3">
             <div class="input-group">
-              <div class="input-group-icon">
-                <i class="fas fa-user"></i>
-              </div>
               <input type="text" id="swal-name" class="form-control" placeholder="Enter full name" value="${employee.name}">
             </div>
           </div>
           <div class="mb-3">
             <div class="input-group">
-              <div class="input-group-icon">
-                <i class="fas fa-envelope"></i>
-              </div>
               <input type="email" id="swal-email" class="form-control" placeholder="Enter email address" value="${employee.email}">
             </div>
           </div>
           <div class="mb-3">
             <div class="input-group">
-              <div class="input-group-icon">
-                <i class="fas fa-building"></i>
-              </div>
               <select id="swal-dept" class="form-select">
                 <option value="" disabled>Select Department</option>
                 <option value="HR" ${employee.departmentType === 'HR' ? 'selected' : ''}>HR</option>

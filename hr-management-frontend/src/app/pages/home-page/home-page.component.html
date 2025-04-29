@@ -1,3 +1,10 @@
-<div class="container">
-    <app-view-employees></app-view-employees>
+<div class="min-vh-100 d-flex flex-column justify-content-center align-items-center text-center px-3">
+    <div class="d-flex gap-2 mb-3">
+        <h1 class="m-0 text-dark">Fortium Partners</h1>
+    </div>
+    <h2 class="fw-light text-secondary">HR Management Portal</h2>
+    <button *ngIf="!authService.isLoggedIn()" class="btn btn-outline-primary mt-3 mb-4" (click)="login()">
+        <i class="fas fa-sign-in-alt me-1"></i> Login to Portal
+    </button>
+    <h4 class="text-danger fw-bold">Login with Username as "admin" & password as "admin1234"</h4>
 </div>
