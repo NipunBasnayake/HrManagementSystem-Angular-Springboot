@@ -2,9 +2,11 @@ package org.hrmanage.service;
 
 import org.hrmanage.dto.EmployeeDto;
 
+import java.util.List;
+
 public interface EmployeeService {
 
-    EmployeeDto getAllEmployees();
+    List<EmployeeDto> getAllEmployees();
 
     EmployeeDto getEmployeeById(Integer id);
 
@@ -12,5 +14,5 @@ public interface EmployeeService {
 
     EmployeeDto updateEmployee(EmployeeDto employeeDto);
 
-    EmployeeDto deleteEmployee(Integer id);
+    Boolean deleteEmployee(Integer id);
 }

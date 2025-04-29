@@ -6,6 +6,8 @@ import org.hrmanage.service.EmployeeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin
@@ -14,7 +16,7 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @GetMapping
-    public ResponseEntity<EmployeeDto> getAll(){
+    public ResponseEntity<List<EmployeeDto>> getAll(){
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
@@ -34,7 +36,7 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<EmployeeDto> deleteEmployee(@PathVariable Integer id){
+    public ResponseEntity<Boolean> deleteEmployee(@PathVariable Integer id){
         return ResponseEntity.ok(employeeService.deleteEmployee(id));
     }
 }

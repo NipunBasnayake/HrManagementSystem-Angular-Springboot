@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "Employee")
+@Table(name = "employee")
 public class EmployeeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class EmployeeEntity {
     @Column(unique = true)
     String email;
 
-    @NotNull
+    @NotNull(message = "Department must be insert")
     DepartmentType departmentType;
 
     @Column(updatable = false)
