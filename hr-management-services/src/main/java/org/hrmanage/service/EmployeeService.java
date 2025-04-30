@@ -16,6 +16,4 @@ public interface EmployeeService {
     EmployeeDto updateEmployee(Integer id, EmployeeDto employeeDto);
 
     Boolean deleteEmployee(Integer id);
-
-    List<EmployeeDto> findByDepartmentType(DepartmentType department);
 }

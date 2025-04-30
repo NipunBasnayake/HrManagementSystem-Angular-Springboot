@@ -29,7 +29,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDto getEmployeeById(Integer id) {
         if (employeeRepository.existsById(id)) {
-            return modelMapper.map(employeeRepository.findById(id), EmployeeDto.class);
+            EmployeeEntity employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found"));
+            return modelMapper.map(employee, EmployeeDto.class);
         }
         return null;
     }
@@ -61,14 +62,4 @@ public class EmployeeServiceImpl implements EmployeeService {
         return false;
     }
 
-    @Override
-    public List<EmployeeDto> findByDepartmentType(DepartmentType department) {
-        if (department == null) {
-            return List.of();
-        }
-        List<EmployeeEntity> employeeByDepartmentType = employeeRepository.findEmployeesByDepartmentType(department);
-        List<EmployeeDto> employeeDtoList = new ArrayList<>();
-        employeeByDepartmentType.forEach(employeeEntity -> employeeDtoList.add(modelMapper.map(employeeEntity, EmployeeDto.class)));
-        return employeeDtoList;
-    }
 }
