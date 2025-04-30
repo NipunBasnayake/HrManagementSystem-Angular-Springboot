@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service'; 
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-nav-bar',
@@ -16,12 +17,25 @@ export class NavBarComponent {
     private router: Router
   ) {}
 
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/home']);
-  }
-
   login(): void {
     this.router.navigate(['/login']);
+  }
+
+  logout(): void {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will be logged out of the system.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, logout',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.authService.logout();
+        this.router.navigate(['/home']);
+      }
+    });
   }
 }
