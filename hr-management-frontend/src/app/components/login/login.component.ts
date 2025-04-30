@@ -14,7 +14,7 @@ import { AuthRequest } from '../../models/user.model';
 
 @Component({
   selector: 'app-login',
-  standalone: true, // Add this for standalone components
+  standalone: true,
   imports: [FormsModule, CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
@@ -26,7 +26,7 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService // ✅ Inject AuthService
+    private authService: AuthService
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],

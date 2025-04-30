@@ -8,7 +8,6 @@ export const routes: Routes = [
     { path: '', component: HomePageComponent },
     { path: 'login', component: LoginComponent },
     { path: 'home', component: HomePageComponent },
-
     { path: 'employee', component: EmployeeComponent, canActivate: [AuthGuard] },
-    { path: '**', redirectTo: 'employee' }
+    { path: '**', redirectTo: '/home' } 
 ];

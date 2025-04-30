@@ -1,12 +1,16 @@
-<nav class="navbar navbar-dark bg-primary">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-        <a class="navbar-brand" href="#">Fortium Partners</a>
-        <div>
-            <button *ngIf="!authService.isLoggedIn()" class="btn btn-outline-light me-2" (click)="login()">
-                Login
+<nav class="app-navbar">
+    <div class="navbar-container">
+        <div class="navbar-brand-container">
+            <a class="navbar-brand" routerLink="/home">Fortium Partners</a>
+            <span class="navbar-subtitle">HR Management System</span>
+        </div>
+
+        <div class="navbar-actions">
+            <button *ngIf="!authService.isLoggedIn()" class="btn btn-login" (click)="login()">
+                <i class="fas fa-sign-in-alt me-2"></i> Login
             </button>
-            <button *ngIf="authService.isLoggedIn()" class="btn btn-outline-light" (click)="logout()">
-                Logout
+            <button *ngIf="authService.isLoggedIn()" class="btn btn-logout" (click)="logout()">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
             </button>
         </div>
     </div>

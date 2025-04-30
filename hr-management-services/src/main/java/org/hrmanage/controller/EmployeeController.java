@@ -34,12 +34,12 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable Integer id, @RequestBody EmployeeDto employeeDto){
+    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") Integer id, @RequestBody EmployeeDto employeeDto){
         return ResponseEntity.ok(employeeService.updateEmployee(id, employeeDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteEmployee(@PathVariable Integer id){
+    public ResponseEntity<Boolean> deleteEmployee(@PathVariable("id") Integer id){
         return ResponseEntity.ok(employeeService.deleteEmployee(id));
     }
 

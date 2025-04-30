@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NavBarComponent } from "../../components/nav-bar/nav-bar.component";
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NavBarComponent, RouterModule],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css'
 })
@@ -16,7 +17,7 @@ export class HomePageComponent {
       public authService: AuthService,
       private router: Router) { }
 
-  login(): void {
-    this.router.navigate(['/login']);
+  goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 }

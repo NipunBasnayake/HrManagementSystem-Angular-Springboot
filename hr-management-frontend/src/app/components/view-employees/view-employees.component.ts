@@ -5,25 +5,33 @@ import { Employee, EmployeePost } from '../../models/employee.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { Observable } from 'rxjs';
-
-
-
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faUsers, faFileAlt, faPlusCircle, faSearch, faEnvelope, faFilter, faEdit, faTrashAlt, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import { NavBarComponent } from "../nav-bar/nav-bar.component";
 
 @Component({
   selector: 'app-view-employees',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './view-employees.component.html',
-  styleUrl: './view-employees.component.css'
+  styleUrls: ['./view-employees.component.css']
 })
 export class ViewEmployeesComponent {
 
-  employees: Employee[] = [];
+  faUsers = faUsers;
+  faFileAlt = faFileAlt;
+  faPlusCircle = faPlusCircle;
+  faSearch = faSearch;
+  faEnvelope = faEnvelope;
+  faFilter = faFilter;
+  faEdit = faEdit;
+  faTrashAlt = faTrashAlt;
+  faFolderOpen = faFolderOpen;
 
+  employees: Employee[] = [];
   searchName: string = '';
   searchEmail: string = '';
   searchDepartment: string = '';
-
   departmentTypes: string[] = ['HR', 'IT', 'FINANCE', 'OPERATIONS'];
 
   constructor(
@@ -33,6 +41,18 @@ export class ViewEmployeesComponent {
 
   ngOnInit() {
     this.getAllEmployees();
+    this.configureSwalStyles();
+  }
+
+  configureSwalStyles() {
+    Swal.mixin({
+      customClass: {
+        confirmButton: 'swal-confirm-btn',
+        cancelButton: 'swal-cancel-btn',
+        input: 'swal-input'
+      },
+      buttonsStyling: false
+    });
   }
 
   getAllEmployees() {
@@ -40,38 +60,45 @@ export class ViewEmployeesComponent {
       next: (response) => {
         this.employees = response;
       }
-    })
+    });
+  }
+
+  getDepartmentClass(department: string): string {
+    return `dept-${department.toLowerCase()}`;
   }
 
   addEmployee() {
     Swal.fire({
-      title: 'Add New Employee',
+      title: '<strong>Add New Employee</strong>',
       html: `
-        <div class="mb-3">
-            <div class="input-group">
-              <input type="text" id="swal-name" class="form-control" placeholder="Enter full name">
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="input-group">
-              <input type="email" id="swal-email" class="form-control" placeholder="Enter email address">
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="input-group">
-              <select id="swal-dept" class="form-select">
-                <option value="" disabled selected>Select Department</option>
-                <option value="HR">HR</option>
-                <option value="IT">IT</option>
-                <option value="FINANCE">FINANCE</option>
-                <option value="OPERATIONS">OPERATIONS</option>
-              </select>
-            </div>
-          </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Full Name</label>
+          <input type="text" id="swal-name" class="swal-input" placeholder="Enter full name">
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Email Address</label>
+          <input type="email" id="swal-email" class="swal-input" placeholder="Enter email address">
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Department</label>
+          <select id="swal-dept" class="swal-select">
+            <option value="" disabled selected>Select Department</option>
+            <option value="HR">HR</option>
+            <option value="IT">IT</option>
+            <option value="FINANCE">FINANCE</option>
+            <option value="OPERATIONS">OPERATIONS</option>
+          </select>
+        </div>
       `,
-      focusConfirm: false,
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-secondary'
+      },
+      buttonsStyling: false,
       showCancelButton: true,
-      confirmButtonText: 'Add Employee',
+      confirmButtonText: '<i class="fas fa-user-plus me-2"></i>Add Employee',
+      cancelButtonText: 'Cancel',
+      focusConfirm: false,
       preConfirm: () => {
         const name = (document.getElementById('swal-name') as HTMLInputElement).value.trim();
         const email = (document.getElementById('swal-email') as HTMLInputElement).value.trim();
@@ -86,72 +113,87 @@ export class ViewEmployeesComponent {
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-
-        if (this.validateEmployee(result.value)){
-          console.log(result.value);
-
+        if (this.validateEmployee(result.value)) {
           const employee: EmployeePost = result.value;
           this.employeeService.createEmployee(employee).subscribe({
             next: (response) => {
-              Swal.fire('Success!', 'Employee has been added.', 'success');
-              this.getAllEmployees();
+              if (response != null) {
+                Swal.fire({
+                  title: 'Success!',
+                  text: 'Employee has been added.',
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  customClass: { confirmButton: 'btn btn-primary' },
+                  buttonsStyling: false
+                });
+                this.getAllEmployees();
+              }
             }
           });
-        } else{
-          Swal.fire('Error!', 'Invalid employee data.', 'error');
+        } else {
+          Swal.fire({
+            title: 'Error!',
+            text: 'Invalid employee data.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            customClass: { confirmButton: 'btn btn-danger' },
+            buttonsStyling: false
+          });
         }
       }
     });
-  }
+  }  
 
   validateEmployee(employee: EmployeePost): boolean {
 
     if (employee.name.length > 100) {
       return false;
     }
-  
+
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     if (!emailRegex.test(employee.email)) {
       return false;
     }
-  
+
     const validDepartments = ['HR', 'IT', 'FINANCE', 'OPERATIONS'];
     if (!validDepartments.includes(employee.departmentType)) {
       return false;
     }
-  
+
     return true;
   }
-  
+
   updateEmployee(employee: Employee) {
     Swal.fire({
-      title: 'Update Employee',
+      title: '<strong>Update Employee</strong>',
       html: `
-        <div class="mb-3">
-            <div class="input-group">
-              <input type="text" id="swal-name" class="form-control" placeholder="Enter full name" value="${employee.name}">
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="input-group">
-              <input type="email" id="swal-email" class="form-control" placeholder="Enter email address" value="${employee.email}">
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="input-group">
-              <select id="swal-dept" class="form-select">
-                <option value="" disabled>Select Department</option>
-                <option value="HR" ${employee.departmentType === 'HR' ? 'selected' : ''}>HR</option>
-                <option value="IT" ${employee.departmentType === 'IT' ? 'selected' : ''}>IT</option>
-                <option value="FINANCE" ${employee.departmentType === 'FINANCE' ? 'selected' : ''}>FINANCE</option>
-                <option value="OPERATIONS" ${employee.departmentType === 'OPERATIONS' ? 'selected' : ''}>OPERATIONS</option>
-              </select>
-            </div>
-          </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Full Name</label>
+          <input type="text" id="swal-name" class="swal-input" value="${employee.name}">
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Email Address</label>
+          <input type="email" id="swal-email" class="swal-input" value="${employee.email}">
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Department</label>
+          <select id="swal-dept" class="swal-select">
+            <option value="" disabled>Select Department</option>
+            <option value="HR" ${employee.departmentType === 'HR' ? 'selected' : ''}>HR</option>
+            <option value="IT" ${employee.departmentType === 'IT' ? 'selected' : ''}>IT</option>
+            <option value="FINANCE" ${employee.departmentType === 'FINANCE' ? 'selected' : ''}>FINANCE</option>
+            <option value="OPERATIONS" ${employee.departmentType === 'OPERATIONS' ? 'selected' : ''}>OPERATIONS</option>
+          </select>
+        </div>
       `,
-      focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: 'Update Employee',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-secondary'
+      },
+      buttonsStyling: false,
       preConfirm: () => {
         const name = (document.getElementById('swal-name') as HTMLInputElement).value.trim();
         const email = (document.getElementById('swal-email') as HTMLInputElement).value.trim();
@@ -167,10 +209,17 @@ export class ViewEmployeesComponent {
     }).then((result) => {
       if (result.isConfirmed && result.value) {
         if (this.validateEmployee(result.value)) {
-          const employee: Employee = result.value;
-          this.employeeService.updateEmployee(employee).subscribe({
+          const updated: Employee = result.value;
+          this.employeeService.updateEmployee(updated).subscribe({
             next: () => {
-              Swal.fire('Success!', 'Employee updated successfully.', 'success');
+              Swal.fire({
+                title: 'Success!',
+                text: 'Employee updated successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                customClass: { confirmButton: 'btn btn-primary' },
+                buttonsStyling: false
+              });
               this.getAllEmployees();
             },
             error: () => {
@@ -182,7 +231,7 @@ export class ViewEmployeesComponent {
         }
       }
     });
-  }
+  }    
 
   deleteEmployee(employee: Employee) {
     Swal.fire({
@@ -224,7 +273,6 @@ export class ViewEmployeesComponent {
       a.download = 'employees_report.csv';
       a.click();
       window.URL.revokeObjectURL(url);
-    });
-  }
-
+    });
+  }
 }

@@ -1,37 +1,55 @@
-<div class="auth-container d-flex align-items-center justify-content-center min-vh-100 bg-light">
-  <div class="auth-card p-4 rounded shadow-sm bg-white" style="max-width: 400px; width: 100%;">
-    <h2 class="text-center mb-2">Welcome Back</h2>
-    <p class="text-center text-muted mb-4">Enter your credentials to access your account</p>
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2 class="login-title">Welcome to Fortium Partners</h2>
+      <p class="login-subtitle">HR Management Portal</p>
+    </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-user"></i></span>
-          <input type="text" id="username" formControlName="username" class="form-control" />
-        </div>
-        <div *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid" class="text-danger">
-          Username is required.
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="username" class="form-label">
+          <i class="fas fa-user me-2"></i>Username
+        </label>
+        <input type="text" id="username" formControlName="username" class="form-input"
+          placeholder="Enter your username" />
+        <div *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid" class="error-message">
+          Username is required
         </div>
       </div>
 
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-lock"></i></span>
-          <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
-            class="form-control" />
-          <button type="button" class="btn btn-outline-secondary" (click)="togglePassword()">
+      <div class="form-group">
+        <label for="password" class="form-label">
+          <i class="fas fa-lock me-2"></i>Password
+        </label>
+        <div class="password-input">
+          <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" class="form-input"
+            placeholder="Enter your password" />
+          <button type="button" class="password-toggle" (click)="togglePassword()">
             <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
           </button>
         </div>
-        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" class="text-danger">
-          Password is required.
+        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" class="error-message">
+          Password is required
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary w-100">Sign In</button>
-    </form>
+      <button type="submit" class="login-button" [disabled]="loginForm.invalid">
+        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+      </button>
 
+      <div class="demo-credentials">
+        <p class="credentials-title">Demo Credentials</p>
+        <div class="credentials-box">
+          <div class="credential-item">
+            <span class="credential-label">Username:</span>
+            <span class="credential-value">admin</span>
+          </div>
+          <div class="credential-item">
+            <span class="credential-label">Password:</span>
+            <span class="credential-value">admin123</span>
+          </div>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
