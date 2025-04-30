@@ -31,6 +31,7 @@ public class EmployeeEntity {
     @Pattern( regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Invalid email format")
     String email;
 
+    @Enumerated(EnumType.STRING)
     @NotNull(message = "Department must be insert")
     DepartmentType departmentType;
 
