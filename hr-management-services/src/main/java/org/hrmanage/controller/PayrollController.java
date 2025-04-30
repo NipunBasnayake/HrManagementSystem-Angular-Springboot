@@ -1,6 +1,7 @@
 package org.hrmanage.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hrmanage.dto.PayrollDto;
 import org.hrmanage.service.PayrollService;
@@ -25,22 +26,22 @@ public class PayrollController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PayrollDto> getPayrollById(@PathVariable Integer id) {
+    public ResponseEntity<PayrollDto> getPayrollById(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(payrollService.getPayrollById(id));
     }
 
     @PostMapping
-    public ResponseEntity<PayrollDto> createPayroll(@RequestBody PayrollDto payrollDto) {
+    public ResponseEntity<PayrollDto> createPayroll(@Valid @RequestBody PayrollDto payrollDto) {
         return ResponseEntity.ok(payrollService.addPayroll(payrollDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PayrollDto> updatePayroll(@PathVariable Integer id, @RequestBody PayrollDto payrollDto) {
+    public ResponseEntity<PayrollDto> updatePayroll(@PathVariable("id") Integer id, @Valid @RequestBody PayrollDto payrollDto) {
         return ResponseEntity.ok(payrollService.updatePayroll(id, payrollDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deletePayroll(@PathVariable Integer id) {
+    public ResponseEntity<Boolean> deletePayroll(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(payrollService.deletePayroll(id));
     }
 

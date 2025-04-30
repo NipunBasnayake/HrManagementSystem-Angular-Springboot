@@ -1,6 +1,7 @@
 package org.hrmanage.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hrmanage.dto.EmployeeDto;
 import org.hrmanage.service.EmployeeService;
@@ -14,32 +15,33 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin
-@RequestMapping("api/employee")
+@RequestMapping("/api/employee")
 public class EmployeeController {
+
     private final EmployeeService employeeService;
 
     @GetMapping
-    public ResponseEntity<List<EmployeeDto>> getAll(){
+    public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeDto> getById(@PathVariable Integer id){
+    public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeDto employeeDto){
+    public ResponseEntity<EmployeeDto> createEmployee(@Valid @RequestBody EmployeeDto employeeDto) {
         return ResponseEntity.ok(employeeService.addEmployee(employeeDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") Integer id, @RequestBody EmployeeDto employeeDto){
+    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") Integer id, @Valid @RequestBody EmployeeDto employeeDto) {
         return ResponseEntity.ok(employeeService.updateEmployee(id, employeeDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteEmployee(@PathVariable("id") Integer id){
+    public ResponseEntity<Boolean> deleteEmployee(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(employeeService.deleteEmployee(id));
     }
 
@@ -59,10 +61,10 @@ public class EmployeeController {
                     emp.getName(),
                     emp.getEmail(),
                     emp.getDepartmentType(),
-                    emp.getCreatedAt().toString(),
-                    emp.getUpdatedAt().toString()
-            ));
+                    emp.getCreatedAt(),
+                    emp.getUpdatedAt()));
         }
+
         writer.flush();
         writer.close();
     }

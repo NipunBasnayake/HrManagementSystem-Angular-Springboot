@@ -1,9 +1,6 @@
 package org.hrmanage.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,37 +14,34 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "employee")
 public class EmployeeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Integer id;
 
-    @NotNull(message = "Name must be insert")
-    @Size(max = 100, message = "Name cannot be exceed 100 characters")
-    @Pattern(regexp = "^[A-Za-z ]+$", message = "Name can only contains alphabetic characters and spaces")
-    String name;
+    @Column(nullable = false, length = 100)
+    private String name;
 
-    @Column(unique = true)
-    @NotNull(message = "Email must be insert")
-    @Pattern( regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Invalid email format")
-    String email;
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Department must be insert")
-    DepartmentType departmentType;
+    @Column(nullable = false)
+    private DepartmentType departmentType;
 
     @Column(updatable = false)
-    LocalDate createdAt;
+    private LocalDate createdAt;
 
-    LocalDate updatedAt;
+    private LocalDate updatedAt;
 
     @PrePersist
-    public void onCreate() {
+    public void prePersist() {
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
     }
 
     @PreUpdate
-    public void onUpdate() {
+    public void preUpdate() {
         this.updatedAt = LocalDate.now();
     }
 }

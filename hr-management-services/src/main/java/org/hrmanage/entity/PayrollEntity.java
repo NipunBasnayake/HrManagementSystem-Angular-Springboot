@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,7 +21,7 @@ public class PayrollEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
     private EmployeeEntity employee;
 
@@ -30,17 +32,19 @@ public class PayrollEntity {
     private BigDecimal basicSalary;
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal allowances;
+    private BigDecimal allowances = BigDecimal.ZERO;
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal deductions;
+    private BigDecimal deductions = BigDecimal.ZERO;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal netSalary;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDate createdAt;
 
     @Column(nullable = false)
+    @UpdateTimestamp
     private LocalDate updatedAt;
 }

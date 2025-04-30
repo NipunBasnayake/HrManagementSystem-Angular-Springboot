@@ -1,6 +1,7 @@
 package org.hrmanage.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hrmanage.dto.LeaveDto;
 import org.hrmanage.service.LeaveService;
@@ -30,12 +31,12 @@ public class LeaveController {
     }
 
     @PostMapping
-    public ResponseEntity<LeaveDto> createLeave(@RequestBody LeaveDto leaveDto) {
+    public ResponseEntity<LeaveDto> createLeave(@Valid @RequestBody LeaveDto leaveDto) {
         return ResponseEntity.ok(leaveService.addLeave(leaveDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LeaveDto> updateLeave(@PathVariable("id") Integer id, @RequestBody LeaveDto leaveDto) {
+    public ResponseEntity<LeaveDto> updateLeave(@PathVariable("id") Integer id, @Valid @RequestBody LeaveDto leaveDto) {
         return ResponseEntity.ok(leaveService.updateLeave(id, leaveDto));
     }
 
