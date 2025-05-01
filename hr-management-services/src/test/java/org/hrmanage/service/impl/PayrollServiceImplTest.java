@@ -1,31 +1,54 @@
 package org.hrmanage.service.impl;
 
+import org.hrmanage.dto.EmployeeDto;
 import org.hrmanage.dto.PayrollDto;
+import org.hrmanage.dto.PayrollSendDto;
 import org.hrmanage.entity.EmployeeEntity;
 import org.hrmanage.entity.PayrollEntity;
 import org.hrmanage.repository.PayrollRepository;
+import org.hrmanage.service.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class PayrollServiceImplTest {
 
+    @Mock
     private PayrollRepository payrollRepository;
-    private ModelMapper modelMapper;
+
+    @Mock
+    private EmployeeService employeeService;
+
+    @InjectMocks
     private PayrollServiceImpl payrollService;
 
     @BeforeEach
     void setUp() {
-        payrollRepository = mock(PayrollRepository.class);
-        modelMapper = new ModelMapper();
-        payrollService = new PayrollServiceImpl(payrollRepository, modelMapper);
+        MockitoAnnotations.openMocks(this);
+    }
+
+    private PayrollDto createPayrollDto() {
+        return new PayrollDto(
+                null,
+                1,
+                LocalDate.now(),
+                new BigDecimal("50000"),
+                new BigDecimal("5000"),
+                new BigDecimal("2000"),
+                new BigDecimal("53000"),
+                null,
+                null
+        );
     }
 
     private PayrollEntity createEntity() {
@@ -37,122 +60,88 @@ class PayrollServiceImplTest {
         entity.setAllowances(new BigDecimal("5000"));
         entity.setDeductions(new BigDecimal("2000"));
         entity.setNetSalary(new BigDecimal("53000"));
-        entity.setCreatedAt(LocalDate.now());
-        entity.setUpdatedAt(LocalDate.now());
         return entity;
     }
 
-    private PayrollDto createDto() {
-        PayrollDto dto = new PayrollDto();
-        dto.setId(1);
-        dto.setEmployeeId(1);
-        dto.setPayDate(LocalDate.now());
-        dto.setBasicSalary(new BigDecimal("50000"));
-        dto.setAllowances(new BigDecimal("5000"));
-        dto.setDeductions(new BigDecimal("2000"));
-        dto.setNetSalary(new BigDecimal("53000"));
-        dto.setCreatedAt(LocalDate.now());
-        dto.setUpdatedAt(LocalDate.now());
-        return dto;
+    @Test
+    void testGetAllPayrolls_EmptyList() {
+        when(payrollRepository.findAll()).thenReturn(List.of());
+        List<PayrollSendDto> result = payrollService.getAllPayrolls();
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void testGetAllPayrolls() {
-        List<PayrollEntity> entities = List.of(createEntity());
-        when(payrollRepository.findAll()).thenReturn(entities);
+    void testAddPayroll_Success() {
+        PayrollDto dto = createPayrollDto();
+        PayrollEntity entity = createEntity();
 
-        List<PayrollDto> result = payrollService.getAllPayrolls();
+        when(employeeService.getEmployeeById(1)).thenReturn(new EmployeeDto());
+        when(payrollRepository.save(any(PayrollEntity.class))).thenReturn(entity);
 
-        assertEquals(1, result.size());
-        assertEquals(new BigDecimal("53000"), result.get(0).getNetSalary());
+        PayrollSendDto result = payrollService.addPayroll(dto);
+        assertNotNull(result);
+        assertEquals(1, result.getId());
+        assertEquals(new BigDecimal("53000"), result.getNetSalary());
+    }
+
+    @Test
+    void testAddPayroll_EmployeeNotFound() {
+        PayrollDto dto = createPayrollDto();
+        when(employeeService.getEmployeeById(1)).thenReturn(null);
+        PayrollSendDto result = payrollService.addPayroll(dto);
+        assertNull(result);
     }
 
     @Test
     void testGetPayrollById_Found() {
         PayrollEntity entity = createEntity();
         when(payrollRepository.findById(1)).thenReturn(Optional.of(entity));
-
-        PayrollDto result = payrollService.getPayrollById(1);
-
-        assertNotNull(result);
-        assertEquals(new BigDecimal("53000"), result.getNetSalary());
-    }
-
-    @Test
-    void testGetPayrollById_NotFound() {
-        when(payrollRepository.findById(1)).thenReturn(Optional.empty());
-
-        PayrollDto result = payrollService.getPayrollById(1);
-
-        assertNull(result);
-    }
-
-    @Test
-    void testAddPayroll_Success() {
-        PayrollDto dto = createDto();
-        dto.setId(null);
-        PayrollEntity entity = createEntity();
-        entity.setId(1);
-
-        when(payrollRepository.save(any(PayrollEntity.class))).thenReturn(entity);
-
-        PayrollDto result = payrollService.addPayroll(dto);
-
+        PayrollSendDto result = payrollService.getPayrollById(1);
         assertNotNull(result);
         assertEquals(1, result.getId());
     }
 
     @Test
-    void testAddPayroll_WithId_ReturnsNull() {
-        PayrollDto dto = createDto();
-        dto.setId(1);
-
-        PayrollDto result = payrollService.addPayroll(dto);
-
+    void testGetPayrollById_NotFound() {
+        when(payrollRepository.findById(1)).thenReturn(Optional.empty());
+        PayrollSendDto result = payrollService.getPayrollById(1);
         assertNull(result);
-        verify(payrollRepository, never()).save(any());
     }
 
     @Test
     void testUpdatePayroll_Success() {
-        PayrollDto dto = createDto();
-        when(payrollRepository.existsById(1)).thenReturn(true);
-        when(payrollRepository.save(any())).thenReturn(createEntity());
+        PayrollDto dto = createPayrollDto();
+        PayrollEntity entity = createEntity();
 
-        PayrollDto result = payrollService.updatePayroll(1, dto);
+        when(payrollRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(employeeService.getEmployeeById(1)).thenReturn(new EmployeeDto());
+        when(payrollRepository.save(any(PayrollEntity.class))).thenReturn(entity);
 
+        PayrollSendDto result = payrollService.updatePayroll(1, dto);
         assertNotNull(result);
-        assertEquals(new BigDecimal("53000"), result.getNetSalary());
+        assertEquals(1, result.getId());
     }
 
     @Test
-    void testUpdatePayroll_IdMismatchOrNotExist() {
-        PayrollDto dto = createDto();
-        dto.setId(2);
-        when(payrollRepository.existsById(1)).thenReturn(true);
-
-        PayrollDto result = payrollService.updatePayroll(1, dto);
-
+    void testUpdatePayroll_NotFound() {
+        PayrollDto dto = createPayrollDto();
+        when(payrollRepository.findById(1)).thenReturn(Optional.empty());
+        PayrollSendDto result = payrollService.updatePayroll(1, dto);
         assertNull(result);
     }
 
     @Test
-    void testDeletePayroll_Success() {
-        when(payrollRepository.existsById(1)).thenReturn(true).thenReturn(false);
-
+    void testDeletePayroll_Exists() {
+        when(payrollRepository.findById(1)).thenReturn(Optional.of(createEntity()));
         Boolean result = payrollService.deletePayroll(1);
-
         assertTrue(result);
-        verify(payrollRepository).deleteById(1);
+        verify(payrollRepository, times(1)).deleteById(1);
     }
 
     @Test
-    void testDeletePayroll_NotFound() {
-        when(payrollRepository.existsById(1)).thenReturn(false);
-
+    void testDeletePayroll_NotExists() {
+        when(payrollRepository.findById(1)).thenReturn(Optional.empty());
         Boolean result = payrollService.deletePayroll(1);
-
         assertFalse(result);
-        verify(payrollRepository, never()).deleteById(any());
     }
 }

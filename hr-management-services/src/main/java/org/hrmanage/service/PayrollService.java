@@ -1,17 +1,18 @@
 package org.hrmanage.service;
 
 import org.hrmanage.dto.PayrollDto;
+import org.hrmanage.dto.PayrollSendDto;
 
 import java.util.List;
 
 public interface PayrollService {
-    List<PayrollDto> getAllPayrolls();
+    List<PayrollSendDto> getAllPayrolls();
 
-    PayrollDto getPayrollById(Integer id);
+    PayrollSendDto getPayrollById(Integer id);
 
-    PayrollDto addPayroll(PayrollDto payrollDto);
+    PayrollSendDto addPayroll(PayrollDto payrollDto);
 
-    PayrollDto updatePayroll(Integer id, PayrollDto payrollDto);
+    PayrollSendDto updatePayroll(Integer id, PayrollDto payrollDto);
 
     Boolean deletePayroll(Integer id);
 }
