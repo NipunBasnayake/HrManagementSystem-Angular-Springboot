@@ -17,7 +17,7 @@ spring:
 
 jwt:
   secret: hrmanagementapplicationbynipunsathsara@icetin20250429
-  expiration: 86400000
+  expiration: 172800000 # 2 days
 
 app:
   admin:
@@ -30,3 +30,6 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
+    display-request-duration: true
+    persist-authorization: true
+    try-it-out-enabled: true
