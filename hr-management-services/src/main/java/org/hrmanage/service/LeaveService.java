@@ -1,17 +1,18 @@
 package org.hrmanage.service;
 
 import org.hrmanage.dto.LeaveDto;
+import org.hrmanage.dto.LeaveSendDto;
 
 import java.util.List;
 
 public interface LeaveService {
-    List<LeaveDto> getAllLeaves();
+    List<LeaveSendDto> getAllLeaves();
 
-    LeaveDto getLeaveById(Integer id);
+    LeaveSendDto getLeaveById(Integer id);
 
-    LeaveDto addLeave(LeaveDto leaveDto);
+    LeaveSendDto addLeave(LeaveDto leaveDto);
 
-    LeaveDto updateLeave(Integer id, LeaveDto leaveDto);
+    LeaveSendDto updateLeave(Integer id, LeaveDto leaveDto);
 
     Boolean deleteLeave(Integer id);
 }

@@ -1,9 +1,12 @@
 package org.hrmanage.service.impl;
 
+import org.hrmanage.dto.EmployeeDto;
 import org.hrmanage.dto.LeaveDto;
+import org.hrmanage.dto.LeaveSendDto;
 import org.hrmanage.entity.EmployeeEntity;
 import org.hrmanage.entity.LeaveEntity;
 import org.hrmanage.repository.LeaveRepository;
+import org.hrmanage.service.EmployeeService;
 import org.hrmanage.util.LeaveStatus;
 import org.hrmanage.util.LeaveType;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,21 +33,29 @@ class LeaveServiceImplTest {
     @Mock
     private ModelMapper modelMapper;
 
+    @Mock
+    private EmployeeService employeeService;
+
     @InjectMocks
     private LeaveServiceImpl leaveService;
 
     private LeaveEntity leaveEntity;
     private LeaveDto leaveDto;
-    private EmployeeEntity employee;
+    private LeaveSendDto leaveSendDto;
+    private EmployeeEntity employeeEntity;
+    private EmployeeDto employeeDto;
 
     @BeforeEach
     void setUp() {
-        employee = new EmployeeEntity();
-        employee.setId(1);
+        employeeEntity = new EmployeeEntity();
+        employeeEntity.setId(1);
+
+        employeeDto = new EmployeeDto();
+        employeeDto.setId(1);
 
         leaveEntity = new LeaveEntity(
                 1,
-                employee,
+                employeeEntity,
                 LeaveType.ANNUAL,
                 LocalDate.now().plusDays(1),
                 LocalDate.now().plusDays(5),
@@ -65,35 +76,41 @@ class LeaveServiceImplTest {
                 leaveEntity.getCreatedAt(),
                 leaveEntity.getUpdatedAt()
         );
+
+        leaveSendDto = new LeaveSendDto();
+        leaveSendDto.setId(1);
+        leaveSendDto.setEmployee(employeeDto);
     }
 
     @Test
     void getAllLeaves_success() {
         when(leaveRepository.findAll()).thenReturn(List.of(leaveEntity));
-        when(modelMapper.map(leaveEntity, LeaveDto.class)).thenReturn(leaveDto);
+        when(modelMapper.map(leaveEntity, LeaveSendDto.class)).thenReturn(leaveSendDto);
+        when(employeeService.getEmployeeById(1)).thenReturn(employeeDto);
 
-        List<LeaveDto> result = leaveService.getAllLeaves();
+        List<LeaveSendDto> result = leaveService.getAllLeaves();
 
         assertEquals(1, result.size());
-        assertEquals(leaveDto, result.get(0));
+        assertEquals(leaveSendDto, result.get(0));
     }
 
     @Test
     void getLeaveById_success() {
         when(leaveRepository.findById(1)).thenReturn(Optional.of(leaveEntity));
-        when(modelMapper.map(leaveEntity, LeaveDto.class)).thenReturn(leaveDto);
+        when(modelMapper.map(leaveEntity, LeaveSendDto.class)).thenReturn(leaveSendDto);
+        when(employeeService.getEmployeeById(1)).thenReturn(employeeDto);
 
-        LeaveDto result = leaveService.getLeaveById(1);
+        LeaveSendDto result = leaveService.getLeaveById(1);
 
         assertNotNull(result);
-        assertEquals(leaveDto, result);
+        assertEquals(leaveSendDto, result);
     }
 
     @Test
     void getLeaveById_notFound() {
         when(leaveRepository.findById(1)).thenReturn(Optional.empty());
 
-        LeaveDto result = leaveService.getLeaveById(1);
+        LeaveSendDto result = leaveService.getLeaveById(1);
 
         assertNull(result);
     }
@@ -114,7 +131,7 @@ class LeaveServiceImplTest {
 
         LeaveEntity inputEntity = new LeaveEntity(
                 null,
-                employee,
+                employeeEntity,
                 LeaveType.ANNUAL,
                 inputDto.getStartDate(),
                 inputDto.getEndDate(),
@@ -126,12 +143,13 @@ class LeaveServiceImplTest {
 
         when(modelMapper.map(inputDto, LeaveEntity.class)).thenReturn(inputEntity);
         when(leaveRepository.save(inputEntity)).thenReturn(leaveEntity);
-        when(modelMapper.map(leaveEntity, LeaveDto.class)).thenReturn(leaveDto);
+        when(modelMapper.map(leaveEntity, LeaveSendDto.class)).thenReturn(leaveSendDto);
+        when(employeeService.getEmployeeById(1)).thenReturn(employeeDto);
 
-        LeaveDto result = leaveService.addLeave(inputDto);
+        LeaveSendDto result = leaveService.addLeave(inputDto);
 
         assertNotNull(result);
-        assertEquals(leaveDto, result);
+        assertEquals(leaveSendDto, result);
     }
 
     @Test
@@ -148,7 +166,7 @@ class LeaveServiceImplTest {
                 null
         );
 
-        LeaveDto result = leaveService.addLeave(inputWithId);
+        LeaveSendDto result = leaveService.addLeave(inputWithId);
 
         assertNull(result);
         verify(leaveRepository, never()).save(any());
@@ -159,25 +177,26 @@ class LeaveServiceImplTest {
         when(leaveRepository.existsById(1)).thenReturn(true);
         when(modelMapper.map(leaveDto, LeaveEntity.class)).thenReturn(leaveEntity);
         when(leaveRepository.save(leaveEntity)).thenReturn(leaveEntity);
-        when(modelMapper.map(leaveEntity, LeaveDto.class)).thenReturn(leaveDto);
+        when(modelMapper.map(leaveEntity, LeaveSendDto.class)).thenReturn(leaveSendDto);
+        when(employeeService.getEmployeeById(1)).thenReturn(employeeDto);
 
-        LeaveDto result = leaveService.updateLeave(1, leaveDto);
+        LeaveSendDto result = leaveService.updateLeave(1, leaveDto);
 
         assertNotNull(result);
-        assertEquals(leaveDto, result);
+        assertEquals(leaveSendDto, result);
     }
 
     @Test
     void updateLeave_idMismatch_shouldReturnNull() {
         LeaveDto dto = new LeaveDto(2, 1, LeaveType.SICK, LocalDate.now(), LocalDate.now(), "Mismatch", LeaveStatus.PENDING, null, null);
-        LeaveDto result = leaveService.updateLeave(1, dto);
+        LeaveSendDto result = leaveService.updateLeave(1, dto);
         assertNull(result);
     }
 
     @Test
     void updateLeave_nonExisting_shouldReturnNull() {
         when(leaveRepository.existsById(1)).thenReturn(false);
-        LeaveDto result = leaveService.updateLeave(1, leaveDto);
+        LeaveSendDto result = leaveService.updateLeave(1, leaveDto);
         assertNull(result);
     }
 
