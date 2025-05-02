@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,16 +10,17 @@ import { PayrollService } from '../../services/payroll.service';
 import { Payroll, PayrollPost } from '../../models/payroll.model';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../models/employee.model';
-import { Leave, LeaveGet } from '../../models/leave.model';
+import { Leave, LeaveGet, LeaveStatus, LeaveType } from '../../models/leave.model';
 import { LeaveService } from '../../services/leave.service';
 
 @Component({
   selector: 'app-view-leaves',
+  standalone: true,
   imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './view-leaves.component.html',
-  styleUrl: './view-leaves.component.css'
+  styleUrls: ['./view-leaves.component.css']
 })
-export class ViewLeavesComponent {
+export class ViewLeavesComponent implements OnInit {
   faUsers = faUsers;
   faFileAlt = faFileAlt;
   faPlusCircle = faPlusCircle;
@@ -43,8 +44,29 @@ export class ViewLeavesComponent {
   ) { }
 
   ngOnInit() {
-    this.getAllPayrolls();
+    this.getAllLeaves();
     this.configureSwalStyles();
+  }
+  
+  // Process leaves to ensure no null values reach the template
+  private processLeaves(leaves: LeaveGet[]): LeaveGet[] {
+    return leaves.map(leave => {
+      // Ensure employee object exists with required properties
+      if (!leave.employee) {
+        leave.employee = { id: 0, name: 'Unknown' } as Employee;
+      }
+      
+      // Ensure other properties have default values if null
+      return {
+        ...leave,
+        startDate: leave.startDate || '',
+        endDate: leave.endDate || '',
+        reason: leave.reason || '',
+        status: leave.status || LeaveStatus.PENDING,
+        createdAt: leave.createdAt || '',
+        updatedAt: leave.updatedAt || '',
+      };
+    });
   }
 
   configureSwalStyles() {
@@ -59,10 +81,14 @@ export class ViewLeavesComponent {
     });
   }
 
-  getAllPayrolls() {
+  getAllLeaves() {
     this.leaveService.getAllLeaves().subscribe({
-      next: (res) => this.leaves = res,
-      error: () => Swal.fire('Error', 'Failed to fetch payrolls', 'error')
+      next: (res) => {
+        this.leaves = this.processLeaves(res);
+        console.log(res);
+        
+      },
+      error: () => Swal.fire('Error', 'Failed to fetch leaves', 'error')
     });
     this.employeeService.getAllEmployees().subscribe({
       next: (res) => this.employees = res,
@@ -70,172 +96,232 @@ export class ViewLeavesComponent {
     });
   }
 
-  // addPayroll() {
-  //   const employeeOptions = this.employees
-  //     .map(emp => `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`)
-  //     .join('');
+  addLeave() {
+    const employeeOptions = this.employees
+      .map(emp => `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`)
+      .join('');
   
-  //   Swal.fire({
-  //     title: '<strong>Add New Payroll</strong>',
-  //     html: `
-  //       <div class="swal-form-group">
-  //         <label for="swal-empId" class="swal-label">Employee</label>
-  //         <select id="swal-empId" class="swal-select">${employeeOptions}</select>
-  //       </div>
-  //       <div class="swal-form-group">
-  //         <label for="swal-payDate" class="swal-label">Pay Date</label>
-  //         <input type="date" id="swal-payDate" class="swal-input">
-  //       </div>
-  //       <div class="swal-form-group">
-  //         <label for="swal-basic" class="swal-label">Basic Salary</label>
-  //         <input type="number" id="swal-basic" class="swal-input">
-  //       </div>
-  //       <div class="swal-form-group">
-  //         <label for="swal-allowances" class="swal-label">Allowances</label>
-  //         <input type="number" id="swal-allowances" class="swal-input">
-  //       </div>
-  //       <div class="swal-form-group">
-  //         <label for="swal-deductions" class="swal-label">Deductions</label>
-  //         <input type="number" id="swal-deductions" class="swal-input">
-  //       </div>
-  //     `,
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Add Payroll',
-  //     preConfirm: () => {
-  //       const employeeId = parseInt((document.getElementById('swal-empId') as HTMLSelectElement).value);
-  //       const payDate = (document.getElementById('swal-payDate') as HTMLInputElement).value;
-  //       const basicSalary = parseFloat((document.getElementById('swal-basic') as HTMLInputElement).value);
-  //       const allowances = parseFloat((document.getElementById('swal-allowances') as HTMLInputElement).value || '0');
-  //       const deductions = parseFloat((document.getElementById('swal-deductions') as HTMLInputElement).value || '0');
-  //       const netSalary = basicSalary + allowances - deductions;
+    const leaveTypeOptions = Object.values(LeaveType)
+      .map(type => `<option value="${type}">${type}</option>`)
+      .join('');
   
-  //       if (!employeeId || !payDate || isNaN(basicSalary)) {
-  //         Swal.showValidationMessage('Please fill required fields');
-  //         return;
-  //       }
+    const leaveStatusOptions = Object.values(LeaveStatus)
+      .map(status => `<option value="${status}">${status}</option>`)
+      .join('');
   
-  //       return { employeeId, payDate, basicSalary, allowances, deductions, netSalary } as PayrollPost;
-  //     }
-  //   }).then((result) => {
-  //     if (result.isConfirmed && result.value) {
-  //       this.leaveService.createPayroll(result.value).subscribe({
-  //         next: () => {
-  //           Swal.fire('Success', 'Payroll created successfully', 'success');
-  //           this.getAllPayrolls();
-  //         },
-  //         error: () => Swal.fire('Error', 'Failed to create payroll', 'error')
-  //       });
-  //     }
-  //   });
-  // }  
+    Swal.fire({
+      title: '<strong>Add New Leave</strong>',
+      html: `
+        <div class="swal-form-group">
+          <label class="swal-label">Employee</label>
+          <select id="swal-empId" class="swal-select">${employeeOptions}</select>
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Leave Type</label>
+          <select id="swal-leaveType" class="swal-select">${leaveTypeOptions}</select>
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Start Date</label>
+          <input type="date" id="swal-startDate" class="swal-input">
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">End Date</label>
+          <input type="date" id="swal-endDate" class="swal-input">
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Reason</label>
+          <textarea id="swal-reason" class="swal-input"></textarea>
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Status</label>
+          <select id="swal-status" class="swal-select">${leaveStatusOptions}</select>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Add Leave',
+      preConfirm: () => {
+        const employeeId = parseInt((document.getElementById('swal-empId') as HTMLSelectElement).value);
+        const leaveType = (document.getElementById('swal-leaveType') as HTMLSelectElement).value as LeaveType;
+        const startDate = (document.getElementById('swal-startDate') as HTMLInputElement).value;
+        const endDate = (document.getElementById('swal-endDate') as HTMLInputElement).value;
+        const reason = (document.getElementById('swal-reason') as HTMLTextAreaElement).value.trim();
+        const status = (document.getElementById('swal-status') as HTMLSelectElement).value as LeaveStatus;
+  
+        if (!employeeId || !leaveType || !startDate || !endDate || !status) {
+          Swal.showValidationMessage('Please fill all required fields');
+          return false;
+        }
+  
+        return {
+          employee: { id: employeeId },
+          leaveType,
+          startDate,
+          endDate,
+          reason,
+          status
+        };
+      }
+    }).then(result => {
+      if (result.isConfirmed && result.value) {
+        this.leaveService.createLeave(result.value).subscribe({
+          next: () => {
+            Swal.fire('Success', 'Leave added successfully', 'success');
+            this.getAllLeaves();
+          },
+          error: () => Swal.fire('Error', 'Failed to add leave', 'error')
+        });
+      }
+    });
+  }
 
   updateLeave(leave: LeaveGet) {
-    // Swal.fire({
-    //   title: '<strong>Update Payroll</strong>',
-    //   html: `
-    //     <div class="swal-form-group">
-    //       <label for="swal-empId" class="swal-label">Employee</label>
-    //       <select id="swal-empId" class="swal-select" disabled>
-    //         <option value="${payroll.employee.id}">${payroll.employee.id} - ${payroll.employee.name}</option>
-    //       </select>
-    //     </div>
-    //     <div class="swal-form-group">
-    //       <label for="swal-payDate" class="swal-label">Pay Date</label>
-    //       <input type="date" id="swal-payDate" class="swal-input" value="${payroll.payDate}">
-    //     </div>
-    //     <div class="swal-form-group">
-    //       <label for="swal-basic" class="swal-label">Basic Salary</label>
-    //       <input type="number" id="swal-basic" class="swal-input" value="${payroll.basicSalary}">
-    //     </div>
-    //     <div class="swal-form-group">
-    //       <label for="swal-allowances" class="swal-label">Allowances</label>
-    //       <input type="number" id="swal-allowances" class="swal-input" value="${payroll.allowances || 0}">
-    //     </div>
-    //     <div class="swal-form-group">
-    //       <label for="swal-deductions" class="swal-label">Deductions</label>
-    //       <input type="number" id="swal-deductions" class="swal-input" value="${payroll.deductions || 0}">
-    //     </div>
-    //   `,
-    //   showCancelButton: true,
-    //   confirmButtonText: 'Update Payroll',
-    //   preConfirm: () => {
-    //     const payDate = (document.getElementById('swal-payDate') as HTMLInputElement).value;
-    //     const basicSalary = parseFloat((document.getElementById('swal-basic') as HTMLInputElement).value);
-    //     const allowances = parseFloat((document.getElementById('swal-allowances') as HTMLInputElement).value || '0');
-    //     const deductions = parseFloat((document.getElementById('swal-deductions') as HTMLInputElement).value || '0');
-    //     const netSalary = basicSalary + allowances - deductions;
+    if (!leave || !leave.employee) {
+      Swal.fire('Error', 'Invalid leave record', 'error');
+      return;
+    }
+    
+    const leaveTypeOptions = Object.values(LeaveType)
+      .map(type => `<option value="${type}" ${leave.leaveType === type ? 'selected' : ''}>${type}</option>`)
+      .join('');
   
-    //     if (!payDate || isNaN(basicSalary)) {
-    //       Swal.showValidationMessage('Please fill required fields');
-    //       return;
-    //     }
+    const leaveStatusOptions = Object.values(LeaveStatus)
+      .map(status => `<option value="${status}" ${leave.status === status ? 'selected' : ''}>${status}</option>`)
+      .join('');
   
-    //     return {
-    //       id: payroll.id,
-    //       employeeId: payroll.employee.id,
-    //       payDate,
-    //       basicSalary,
-    //       allowances,
-    //       deductions,
-    //       netSalary
-    //     } as PayrollPost;
-    //   }
-    // }).then((result) => {
-    //   if (result.isConfirmed && result.value && payroll.id !== undefined) {
-    //     this.leaveService.updatePayroll(result.value, payroll.id).subscribe({
-    //       next: () => {
-    //         Swal.fire('Success', 'Payroll updated successfully', 'success');
-    //         this.getAllPayrolls();
-    //       },
-    //       error: () => Swal.fire('Error', 'Failed to update payroll', 'error')
-    //     });
-    //   }
-    // });
-    return null;
-  }
+    const employeeId = leave.employee?.id || '';
+    const employeeName = leave.employee?.name || 'Unknown';
+    
+    Swal.fire({
+      title: '<strong>Update Leave</strong>',
+      html: `
+        <div class="swal-form-group">
+          <label class="swal-label">Employee</label>
+          <select id="swal-empId" class="swal-select" disabled>
+            <option value="${employeeId}">${employeeId} - ${employeeName}</option>
+          </select>
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Leave Type</label>
+          <select id="swal-leaveType" class="swal-select">${leaveTypeOptions}</select>
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Start Date</label>
+          <input type="date" id="swal-startDate" class="swal-input" value="${leave.startDate || ''}">
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">End Date</label>
+          <input type="date" id="swal-endDate" class="swal-input" value="${leave.endDate || ''}">
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Reason</label>
+          <textarea id="swal-reason" class="swal-input">${leave.reason || ''}</textarea>
+        </div>
+        <div class="swal-form-group">
+          <label class="swal-label">Status</label>
+          <select id="swal-status" class="swal-select">${leaveStatusOptions}</select>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Update Leave',
+      preConfirm: () => {
+        const leaveType = (document.getElementById('swal-leaveType') as HTMLSelectElement).value as LeaveType;
+        const startDate = (document.getElementById('swal-startDate') as HTMLInputElement).value;
+        const endDate = (document.getElementById('swal-endDate') as HTMLInputElement).value;
+        const reason = (document.getElementById('swal-reason') as HTMLTextAreaElement).value.trim();
+        const status = (document.getElementById('swal-status') as HTMLSelectElement).value as LeaveStatus;
   
+        if (!leaveType || !startDate || !endDate || !status) {
+          Swal.showValidationMessage('Please fill all required fields');
+          return false;
+        }
+  
+        return {
+          id: leave.id,
+          employee: { id: employeeId ? parseInt(employeeId.toString()) : null },
+          leaveType,
+          startDate,
+          endDate,
+          reason,
+          status
+        };
+      }
+    }).then(result => {
+      if (result.isConfirmed && result.value && leave.id) {
+        this.leaveService.updateLeave(result.value, leave.id).subscribe({
+          next: () => {
+            Swal.fire('Success', 'Leave updated successfully', 'success');
+            this.getAllLeaves();
+          },
+          error: () => Swal.fire('Error', 'Failed to update leave', 'error')
+        });
+      }
+    });
+  }  
+
   deleteLeave(leave: LeaveGet) {
-    // Swal.fire({
-    //   title: 'Delete this payroll?',
-    //   html: `
-    //     <p><strong>Employee:</strong> ${payroll.employee.name}</p>
-    //     <p><strong>Date:</strong> ${payroll.payDate}</p>
-    //     <p><strong>Net Salary:</strong> ${payroll.netSalary}</p>
-    //   `,
-    //   icon: 'warning',
-    //   showCancelButton: true,
-    //   confirmButtonText: 'Yes, delete',
-    //   cancelButtonText: 'Cancel'
-    // }).then((result) => {
-    //   if (result.isConfirmed && payroll.id) {
-    //     this.leaveService.deletePayroll(payroll.id).subscribe({
-    //       next: () => {
-    //         Swal.fire('Deleted', 'Payroll deleted', 'success');
-    //         this.getAllPayrolls();
-    //       },
-    //       error: () => Swal.fire('Error', 'Failed to delete payroll', 'error')
-    //     });
-    //   }
-    // });
+    if (!leave || !leave.employee) {
+      Swal.fire('Error', 'Invalid leave record', 'error');
+      return;
+    }
+    
+    Swal.fire({
+      title: 'Delete this leave?',
+      html: `
+        <p><strong>Employee:</strong> ${leave.employee?.name || 'Unknown'}</p>
+        <p><strong>Start Date:</strong> ${leave.startDate || 'Not specified'}</p>
+        <p><strong>End Date:</strong> ${leave.endDate || 'Not specified'}</p>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed && leave.id) {
+        this.leaveService.deleteLeave(leave.id).subscribe({
+          next: () => {
+            Swal.fire('Deleted', 'Leave record deleted', 'success');
+            this.getAllLeaves();
+          },
+          error: () => Swal.fire('Error', 'Failed to delete leave', 'error')
+        });
+      }
+    });
   }
 
   filteredLeaves(): LeaveGet[] {
-    return this.leaves.filter(p =>
-      (this.searchEmployeeId === '' || p.employee.id.toString().includes(this.searchEmployeeId)) &&
-      (this.startDate === '' || new Date(p.startDate).toLocaleDateString().includes(this.startDate)) &&
-      (this.endDate === '' || new Date(p.endDate).getFullYear().toString().includes(this.endDate))
-    );
+    const validLeaves = this.leaves.map(leave => {
+      if (!leave.employee) {
+        return {
+          ...leave,
+          employee: { id: 0, name: 'Unknown' } as Employee
+        };
+      }
+      return leave;
+    });
+    
+    return validLeaves.filter(leave => {
+      const employeeIdMatch = this.searchEmployeeId === '' || 
+        (leave.employee && leave.employee.id && 
+         leave.employee.id.toString().includes(this.searchEmployeeId));
+      
+      const startDateMatch = this.startDate === '' || 
+        (leave.startDate && new Date(leave.startDate).toISOString().includes(this.startDate));
+      
+      const endDateMatch = this.endDate === '' || 
+        (leave.endDate && new Date(leave.endDate).toISOString().includes(this.endDate));
+      
+      return employeeIdMatch && startDateMatch && endDateMatch;
+    });
   }
 
   exportReports(): void {
-    this.leaveService.exportPayrollReport().subscribe((blob) => {
+    this.leaveService.exportLeaveReport().subscribe((blob) => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'payroll_report.csv';
+      a.download = 'leave_report.csv';
       a.click();
       window.URL.revokeObjectURL(url);
     });
   }
 }
-

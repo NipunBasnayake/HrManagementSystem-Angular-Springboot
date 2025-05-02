@@ -26,26 +26,27 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public List<LeaveSendDto> getAllLeaves() {
         List<LeaveEntity> allLeaves = leaveRepository.findAll();
-        List<LeaveSendDto> leaveSendDtos = new ArrayList<>();
+        List<EmployeeDto> allEmployees = employeeService.getAllEmployees();
+        List<LeaveSendDto> dtoList = new ArrayList<>();
 
         for (LeaveEntity leave : allLeaves) {
-            LeaveSendDto sendDto = modelMapper.map(leave, LeaveSendDto.class);
-            EmployeeDto employeeDto = employeeService.getEmployeeById(leave.getId());
-            sendDto.setEmployee(employeeDto);
-            leaveSendDtos.add(sendDto);
+            LeaveDto leaveDto = modelMapper.map(leave, LeaveDto.class);
+            for (EmployeeDto employee : allEmployees) {
+                if (employee.getId().equals(leaveDto.getEmployeeId())) {
+                    dtoList.add(getLeaveSendDto(leaveDto, employee));
+                }
+            }
         }
-
-        return leaveSendDtos;
+        return dtoList;
     }
 
     @Override
     public LeaveSendDto getLeaveById(Integer id) {
         Optional<LeaveEntity> leaveOpt = leaveRepository.findById(id);
         if (leaveOpt.isPresent()) {
-            LeaveSendDto sendDto = modelMapper.map(leaveOpt.get(), LeaveSendDto.class);
+            LeaveDto leaveDto = modelMapper.map(leaveOpt.get(), LeaveDto.class);
             EmployeeDto employeeDto = employeeService.getEmployeeById(leaveOpt.get().getId());
-            sendDto.setEmployee(employeeDto);
-            return sendDto;
+            return getLeaveSendDto(leaveDto, employeeDto);
         }
         return null;
     }
@@ -54,22 +55,23 @@ public class LeaveServiceImpl implements LeaveService {
     public LeaveSendDto addLeave(LeaveDto leaveDto) {
         if (leaveDto.getId() == null) {
             LeaveEntity saved = leaveRepository.save(modelMapper.map(leaveDto, LeaveEntity.class));
-            LeaveSendDto sendDto = modelMapper.map(saved, LeaveSendDto.class);
+            LeaveDto leaveDto1 = modelMapper.map(saved, LeaveDto.class);
             EmployeeDto employeeDto = employeeService.getEmployeeById(saved.getId());
-            sendDto.setEmployee(employeeDto);
-            return sendDto;
+            return getLeaveSendDto(leaveDto1, employeeDto);
         }
         return null;
     }
 
     @Override
     public LeaveSendDto updateLeave(Integer id, LeaveDto leaveDto) {
+        if (leaveDto.getId() == null) {
+            return null;
+        }
         if (leaveRepository.existsById(id) && id.equals(leaveDto.getId())) {
             LeaveEntity updated = leaveRepository.save(modelMapper.map(leaveDto, LeaveEntity.class));
-            LeaveSendDto sendDto = modelMapper.map(updated, LeaveSendDto.class);
+            LeaveDto leaveDto1 = modelMapper.map(updated, LeaveDto.class);
             EmployeeDto employeeDto = employeeService.getEmployeeById(updated.getId());
-            sendDto.setEmployee(employeeDto);
-            return sendDto;
+            return getLeaveSendDto(leaveDto1, employeeDto);
         }
         return null;
     }
@@ -81,5 +83,19 @@ public class LeaveServiceImpl implements LeaveService {
             return !leaveRepository.existsById(id);
         }
         return false;
+    }
+
+    private LeaveSendDto getLeaveSendDto(LeaveDto leaveDto, EmployeeDto employeeDto) {
+        return new LeaveSendDto(
+                leaveDto.getId(),
+                employeeDto,
+                leaveDto.getLeaveType(),
+                leaveDto.getStartDate(),
+                leaveDto.getEndDate(),
+                leaveDto.getReason(),
+                leaveDto.getStatus(),
+                leaveDto.getCreatedAt(),
+                leaveDto.getUpdatedAt()
+        );
     }
 }

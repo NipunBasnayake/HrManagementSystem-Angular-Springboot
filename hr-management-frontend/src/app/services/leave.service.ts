@@ -33,7 +33,7 @@ export class LeaveService {
         return this.http.delete<boolean>(`${this.apiUrl}/${id}`);
     }
 
-    exportPayrollReport(): Observable<Blob> {
+    exportLeaveReport(): Observable<Blob> {
         return this.http.get(`${this.apiUrl}/report`, { responseType: 'blob' });
     }
 }
