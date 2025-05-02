@@ -1,8 +1,8 @@
 <div class="employee-container">
     <div class="employee-card">
         <div class="employee-header">
-            <h2 class="employee-title">Payroll Management</h2>
-            <p class="employee-subtitle">Manage employee payroll records</p>
+            <h2 class="employee-title">Leave Management</h2>
+            <p class="employee-subtitle">Manage employee leave records</p>
         </div>
 
         <div class="employee-controls">
@@ -56,10 +56,10 @@
                         <td>{{ leave.employee.id }}</td>
                         <td>{{ leave.employee.name }}</td>
                         <td>{{ leave.leaveType}}</td>
-                        <td>LKR {{ leave.startDate }}</td>
-                        <td>LKR {{ leave.endDate }}</td>
-                        <td>LKR {{ leave.reason }}</td>
-                        <td>LKR {{ leave.status }}</td>
+                        <td>{{ leave.startDate }}</td>
+                        <td>{{ leave.endDate }}</td>
+                        <td>{{ leave.reason }}</td>
+                        <td>{{ leave.status }}</td>
                         <td>{{ leave.createdAt }}</td>
                         <td>{{ leave.updatedAt }}</td>
                         <td class="text-center action-buttons">
