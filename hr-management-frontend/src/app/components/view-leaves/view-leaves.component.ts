@@ -47,16 +47,12 @@ export class ViewLeavesComponent implements OnInit {
     this.getAllLeaves();
     this.configureSwalStyles();
   }
-  
-  // Process leaves to ensure no null values reach the template
+
   private processLeaves(leaves: LeaveGet[]): LeaveGet[] {
     return leaves.map(leave => {
-      // Ensure employee object exists with required properties
       if (!leave.employee) {
         leave.employee = { id: 0, name: 'Unknown' } as Employee;
       }
-      
-      // Ensure other properties have default values if null
       return {
         ...leave,
         startDate: leave.startDate || '',
@@ -85,8 +81,6 @@ export class ViewLeavesComponent implements OnInit {
     this.leaveService.getAllLeaves().subscribe({
       next: (res) => {
         this.leaves = this.processLeaves(res);
-        console.log(res);
-        
       },
       error: () => Swal.fire('Error', 'Failed to fetch leaves', 'error')
     });
@@ -100,15 +94,15 @@ export class ViewLeavesComponent implements OnInit {
     const employeeOptions = this.employees
       .map(emp => `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`)
       .join('');
-  
+
     const leaveTypeOptions = Object.values(LeaveType)
       .map(type => `<option value="${type}">${type}</option>`)
       .join('');
-  
+
     const leaveStatusOptions = Object.values(LeaveStatus)
       .map(status => `<option value="${status}">${status}</option>`)
       .join('');
-  
+
     Swal.fire({
       title: '<strong>Add New Leave</strong>',
       html: `
@@ -146,14 +140,14 @@ export class ViewLeavesComponent implements OnInit {
         const endDate = (document.getElementById('swal-endDate') as HTMLInputElement).value;
         const reason = (document.getElementById('swal-reason') as HTMLTextAreaElement).value.trim();
         const status = (document.getElementById('swal-status') as HTMLSelectElement).value as LeaveStatus;
-  
+
         if (!employeeId || !leaveType || !startDate || !endDate || !status) {
           Swal.showValidationMessage('Please fill all required fields');
           return false;
         }
-  
+
         return {
-          employee: { id: employeeId },
+          employeeId,
           leaveType,
           startDate,
           endDate,
@@ -179,7 +173,7 @@ export class ViewLeavesComponent implements OnInit {
       Swal.fire('Error', 'Invalid leave record', 'error');
       return;
     }
-    
+  
     const leaveTypeOptions = Object.values(LeaveType)
       .map(type => `<option value="${type}" ${leave.leaveType === type ? 'selected' : ''}>${type}</option>`)
       .join('');
@@ -188,9 +182,9 @@ export class ViewLeavesComponent implements OnInit {
       .map(status => `<option value="${status}" ${leave.status === status ? 'selected' : ''}>${status}</option>`)
       .join('');
   
-    const employeeId = leave.employee?.id || '';
-    const employeeName = leave.employee?.name || 'Unknown';
-    
+    const employeeId = leave.employee.id;
+    const employeeName = leave.employee.name;
+  
     Swal.fire({
       title: '<strong>Update Leave</strong>',
       html: `
@@ -206,11 +200,11 @@ export class ViewLeavesComponent implements OnInit {
         </div>
         <div class="swal-form-group">
           <label class="swal-label">Start Date</label>
-          <input type="date" id="swal-startDate" class="swal-input" value="${leave.startDate || ''}">
+          <input type="date" id="swal-startDate" class="swal-input" value="${leave.startDate}">
         </div>
         <div class="swal-form-group">
           <label class="swal-label">End Date</label>
-          <input type="date" id="swal-endDate" class="swal-input" value="${leave.endDate || ''}">
+          <input type="date" id="swal-endDate" class="swal-input" value="${leave.endDate}">
         </div>
         <div class="swal-form-group">
           <label class="swal-label">Reason</label>
@@ -237,7 +231,7 @@ export class ViewLeavesComponent implements OnInit {
   
         return {
           id: leave.id,
-          employee: { id: employeeId ? parseInt(employeeId.toString()) : null },
+          employeeId: employeeId,
           leaveType,
           startDate,
           endDate,
@@ -246,8 +240,8 @@ export class ViewLeavesComponent implements OnInit {
         };
       }
     }).then(result => {
-      if (result.isConfirmed && result.value && leave.id) {
-        this.leaveService.updateLeave(result.value, leave.id).subscribe({
+      if (result.isConfirmed && result.value) {
+        this.leaveService.updateLeave(result.value, leave.id!).subscribe({
           next: () => {
             Swal.fire('Success', 'Leave updated successfully', 'success');
             this.getAllLeaves();
@@ -263,7 +257,7 @@ export class ViewLeavesComponent implements OnInit {
       Swal.fire('Error', 'Invalid leave record', 'error');
       return;
     }
-    
+
     Swal.fire({
       title: 'Delete this leave?',
       html: `
@@ -298,18 +292,18 @@ export class ViewLeavesComponent implements OnInit {
       }
       return leave;
     });
-    
+
     return validLeaves.filter(leave => {
-      const employeeIdMatch = this.searchEmployeeId === '' || 
-        (leave.employee && leave.employee.id && 
-         leave.employee.id.toString().includes(this.searchEmployeeId));
-      
-      const startDateMatch = this.startDate === '' || 
+      const employeeIdMatch = this.searchEmployeeId === '' ||
+        (leave.employee && leave.employee.id &&
+          leave.employee.id.toString().includes(this.searchEmployeeId));
+
+      const startDateMatch = this.startDate === '' ||
         (leave.startDate && new Date(leave.startDate).toISOString().includes(this.startDate));
-      
-      const endDateMatch = this.endDate === '' || 
+
+      const endDateMatch = this.endDate === '' ||
         (leave.endDate && new Date(leave.endDate).toISOString().includes(this.endDate));
-      
+
       return employeeIdMatch && startDateMatch && endDateMatch;
     });
   }

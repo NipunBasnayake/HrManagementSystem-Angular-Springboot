@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.hrmanage.dto.EmployeeDto;
 import org.hrmanage.dto.LeaveDto;
 import org.hrmanage.dto.LeaveSendDto;
+import org.hrmanage.entity.EmployeeEntity;
 import org.hrmanage.entity.LeaveEntity;
 import org.hrmanage.repository.LeaveRepository;
 import org.hrmanage.service.EmployeeService;
@@ -44,8 +45,10 @@ public class LeaveServiceImpl implements LeaveService {
     public LeaveSendDto getLeaveById(Integer id) {
         Optional<LeaveEntity> leaveOpt = leaveRepository.findById(id);
         if (leaveOpt.isPresent()) {
-            LeaveDto leaveDto = modelMapper.map(leaveOpt.get(), LeaveDto.class);
-            EmployeeDto employeeDto = employeeService.getEmployeeById(leaveOpt.get().getId());
+            LeaveEntity entity = leaveOpt.get();
+            LeaveDto leaveDto = modelMapper.map(entity, LeaveDto.class);
+            leaveDto.setEmployeeId(entity.getEmployee().getId());
+            EmployeeDto employeeDto = employeeService.getEmployeeById(entity.getEmployee().getId());
             return getLeaveSendDto(leaveDto, employeeDto);
         }
         return null;
@@ -53,25 +56,24 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     public LeaveSendDto addLeave(LeaveDto leaveDto) {
+        System.out.println(leaveDto.toString());
         if (leaveDto.getId() == null) {
-            LeaveEntity saved = leaveRepository.save(modelMapper.map(leaveDto, LeaveEntity.class));
-            LeaveDto leaveDto1 = modelMapper.map(saved, LeaveDto.class);
-            EmployeeDto employeeDto = employeeService.getEmployeeById(saved.getId());
-            return getLeaveSendDto(leaveDto1, employeeDto);
+            LeaveDto saved = modelMapper.map(leaveRepository.save(modelMapper.map(leaveDto, LeaveEntity.class)), LeaveDto.class);
+            EmployeeDto employee = employeeService.getEmployeeById(leaveDto.getEmployeeId());
+            return getLeaveSendDto(saved, employee);
         }
         return null;
     }
 
     @Override
     public LeaveSendDto updateLeave(Integer id, LeaveDto leaveDto) {
-        if (leaveDto.getId() == null) {
+        if (id == null || leaveDto.getId() == null) {
             return null;
         }
-        if (leaveRepository.existsById(id) && id.equals(leaveDto.getId())) {
-            LeaveEntity updated = leaveRepository.save(modelMapper.map(leaveDto, LeaveEntity.class));
-            LeaveDto leaveDto1 = modelMapper.map(updated, LeaveDto.class);
-            EmployeeDto employeeDto = employeeService.getEmployeeById(updated.getId());
-            return getLeaveSendDto(leaveDto1, employeeDto);
+        if (leaveDto.getId().equals(id) && leaveRepository.existsById(id)) {
+            LeaveDto saved = modelMapper.map(leaveRepository.save(modelMapper.map(leaveDto, LeaveEntity.class)), LeaveDto.class);
+            EmployeeDto employee = employeeService.getEmployeeById(leaveDto.getEmployeeId());
+            return getLeaveSendDto(saved, employee);
         }
         return null;
     }

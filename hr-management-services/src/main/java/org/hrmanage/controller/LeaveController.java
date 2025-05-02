@@ -33,11 +33,7 @@ public class LeaveController {
 
     @PostMapping
     public ResponseEntity<LeaveSendDto> createLeave(@Valid @RequestBody LeaveDto leaveDto) {
-        System.out.println(leaveDto.toString());
-        LeaveSendDto leaveSendDto = leaveService.addLeave(leaveDto);
-        System.out.println(leaveSendDto.toString());
-
-        return ResponseEntity.ok(leaveSendDto);
+        return ResponseEntity.ok(leaveService.addLeave(leaveDto));
     }
 
     @PutMapping("/{id}")

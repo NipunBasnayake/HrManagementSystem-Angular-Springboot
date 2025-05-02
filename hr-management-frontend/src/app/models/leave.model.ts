@@ -47,3 +47,13 @@ export enum LeaveType {
     reason?: string;
     status: LeaveStatus;
   }
+
+//   {
+//     "employee": { "id": 1 },
+//     "leaveType": "ANNUAL",
+//     "startDate": "2025-05-03",
+//     "endDate": "2025-05-05",
+//     "reason": "Personal matters",
+//     "status": "PENDING"
+//   }
+  
