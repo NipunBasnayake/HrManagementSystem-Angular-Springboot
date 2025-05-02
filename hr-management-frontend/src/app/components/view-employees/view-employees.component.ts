@@ -7,7 +7,6 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUsers, faFileAlt, faPlusCircle, faSearch, faEnvelope, faFilter, faEdit, faTrashAlt, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
-import { NavBarComponent } from "../nav-bar/nav-bar.component";
 
 @Component({
   selector: 'app-view-employees',

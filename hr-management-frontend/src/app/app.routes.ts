@@ -3,11 +3,13 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { EmployeeComponent } from './pages/employee/employee.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
+import { PayrollComponent } from './pages/payroll/payroll.component';
 
 export const routes: Routes = [
     { path: '', component: HomePageComponent },
     { path: 'login', component: LoginComponent },
     { path: 'home', component: HomePageComponent },
     { path: 'employee', component: EmployeeComponent, canActivate: [AuthGuard] },
+    { path: 'payroll', component: PayrollComponent, canActivate: [AuthGuard] },
     { path: '**', redirectTo: '/home' } 
 ];

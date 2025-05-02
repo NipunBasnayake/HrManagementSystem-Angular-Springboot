@@ -24,11 +24,15 @@ export class PayrollService {
         return this.http.post<Payroll>(this.apiUrl, payroll);
     }
 
-    updatePayroll(payroll: PayrollPost & { id: number }): Observable<Payroll> {
-        return this.http.put<Payroll>(`${this.apiUrl}/${payroll.id}`, payroll);
+    updatePayroll(payroll: PayrollPost, id: number ): Observable<Payroll> {
+        return this.http.put<Payroll>(`${this.apiUrl}/${id}`, payroll);
     }
 
     deletePayroll(id: number): Observable<boolean> {
         return this.http.delete<boolean>(`${this.apiUrl}/${id}`);
+    }
+
+    exportPayrollReport(): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/report`, { responseType: 'blob' });
     }
 }
