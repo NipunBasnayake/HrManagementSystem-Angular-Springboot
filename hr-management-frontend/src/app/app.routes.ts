@@ -4,6 +4,7 @@ import { EmployeeComponent } from './pages/employee/employee.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
 import { PayrollComponent } from './pages/payroll/payroll.component';
+import { LeaveComponent } from './pages/leave/leave.component';
 
 export const routes: Routes = [
     { path: '', component: HomePageComponent },
@@ -11,5 +12,6 @@ export const routes: Routes = [
     { path: 'home', component: HomePageComponent },
     { path: 'employee', component: EmployeeComponent, canActivate: [AuthGuard] },
     { path: 'payroll', component: PayrollComponent, canActivate: [AuthGuard] },
+    { path: 'leave', component: LeaveComponent, canActivate: [AuthGuard] },
     { path: '**', redirectTo: '/home' } 
 ];
