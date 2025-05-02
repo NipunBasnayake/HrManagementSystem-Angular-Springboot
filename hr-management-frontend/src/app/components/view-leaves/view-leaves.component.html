@@ -63,12 +63,12 @@
                         <td>{{ leave.createdAt }}</td>
                         <td>{{ leave.updatedAt }}</td>
                         <td class="text-center action-buttons">
-                            <!-- <button class="btn btn-warning btn-action" (click)="updateLeave(leave)">
+                            <button class="btn btn-warning btn-action" (click)="updateLeave(leave)">
                                 <i class="fas fa-edit me-1"></i> Edit
                             </button>
                             <button class="btn btn-danger btn-action" (click)="deleteLeave(leave)">
                                 <i class="fas fa-trash-alt me-1"></i> Delete
-                            </button> -->
+                            </button>
                         </td>
                     </tr>
                     <tr *ngIf="filteredLeaves().length === 0" class="no-results">

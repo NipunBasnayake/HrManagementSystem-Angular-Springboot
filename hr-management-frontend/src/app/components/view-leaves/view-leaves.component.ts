@@ -10,7 +10,7 @@ import { PayrollService } from '../../services/payroll.service';
 import { Payroll, PayrollPost } from '../../models/payroll.model';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../models/employee.model';
-import { LeaveGet } from '../../models/leave.model';
+import { Leave, LeaveGet } from '../../models/leave.model';
 import { LeaveService } from '../../services/leave.service';
 
 @Component({
@@ -129,94 +129,95 @@ export class ViewLeavesComponent {
   //   });
   // }  
 
-  // updatePayroll(payroll: Payroll) {
-  //   Swal.fire({
-  //     title: '<strong>Update Payroll</strong>',
-  //     html: `
-  //       <div class="swal-form-group">
-  //         <label for="swal-empId" class="swal-label">Employee</label>
-  //         <select id="swal-empId" class="swal-select" disabled>
-  //           <option value="${payroll.employee.id}">${payroll.employee.id} - ${payroll.employee.name}</option>
-  //         </select>
-  //       </div>
-  //       <div class="swal-form-group">
-  //         <label for="swal-payDate" class="swal-label">Pay Date</label>
-  //         <input type="date" id="swal-payDate" class="swal-input" value="${payroll.payDate}">
-  //       </div>
-  //       <div class="swal-form-group">
-  //         <label for="swal-basic" class="swal-label">Basic Salary</label>
-  //         <input type="number" id="swal-basic" class="swal-input" value="${payroll.basicSalary}">
-  //       </div>
-  //       <div class="swal-form-group">
-  //         <label for="swal-allowances" class="swal-label">Allowances</label>
-  //         <input type="number" id="swal-allowances" class="swal-input" value="${payroll.allowances || 0}">
-  //       </div>
-  //       <div class="swal-form-group">
-  //         <label for="swal-deductions" class="swal-label">Deductions</label>
-  //         <input type="number" id="swal-deductions" class="swal-input" value="${payroll.deductions || 0}">
-  //       </div>
-  //     `,
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Update Payroll',
-  //     preConfirm: () => {
-  //       const payDate = (document.getElementById('swal-payDate') as HTMLInputElement).value;
-  //       const basicSalary = parseFloat((document.getElementById('swal-basic') as HTMLInputElement).value);
-  //       const allowances = parseFloat((document.getElementById('swal-allowances') as HTMLInputElement).value || '0');
-  //       const deductions = parseFloat((document.getElementById('swal-deductions') as HTMLInputElement).value || '0');
-  //       const netSalary = basicSalary + allowances - deductions;
+  updateLeave(leave: LeaveGet) {
+    // Swal.fire({
+    //   title: '<strong>Update Payroll</strong>',
+    //   html: `
+    //     <div class="swal-form-group">
+    //       <label for="swal-empId" class="swal-label">Employee</label>
+    //       <select id="swal-empId" class="swal-select" disabled>
+    //         <option value="${payroll.employee.id}">${payroll.employee.id} - ${payroll.employee.name}</option>
+    //       </select>
+    //     </div>
+    //     <div class="swal-form-group">
+    //       <label for="swal-payDate" class="swal-label">Pay Date</label>
+    //       <input type="date" id="swal-payDate" class="swal-input" value="${payroll.payDate}">
+    //     </div>
+    //     <div class="swal-form-group">
+    //       <label for="swal-basic" class="swal-label">Basic Salary</label>
+    //       <input type="number" id="swal-basic" class="swal-input" value="${payroll.basicSalary}">
+    //     </div>
+    //     <div class="swal-form-group">
+    //       <label for="swal-allowances" class="swal-label">Allowances</label>
+    //       <input type="number" id="swal-allowances" class="swal-input" value="${payroll.allowances || 0}">
+    //     </div>
+    //     <div class="swal-form-group">
+    //       <label for="swal-deductions" class="swal-label">Deductions</label>
+    //       <input type="number" id="swal-deductions" class="swal-input" value="${payroll.deductions || 0}">
+    //     </div>
+    //   `,
+    //   showCancelButton: true,
+    //   confirmButtonText: 'Update Payroll',
+    //   preConfirm: () => {
+    //     const payDate = (document.getElementById('swal-payDate') as HTMLInputElement).value;
+    //     const basicSalary = parseFloat((document.getElementById('swal-basic') as HTMLInputElement).value);
+    //     const allowances = parseFloat((document.getElementById('swal-allowances') as HTMLInputElement).value || '0');
+    //     const deductions = parseFloat((document.getElementById('swal-deductions') as HTMLInputElement).value || '0');
+    //     const netSalary = basicSalary + allowances - deductions;
   
-  //       if (!payDate || isNaN(basicSalary)) {
-  //         Swal.showValidationMessage('Please fill required fields');
-  //         return;
-  //       }
+    //     if (!payDate || isNaN(basicSalary)) {
+    //       Swal.showValidationMessage('Please fill required fields');
+    //       return;
+    //     }
   
-  //       return {
-  //         id: payroll.id,
-  //         employeeId: payroll.employee.id,
-  //         payDate,
-  //         basicSalary,
-  //         allowances,
-  //         deductions,
-  //         netSalary
-  //       } as PayrollPost;
-  //     }
-  //   }).then((result) => {
-  //     if (result.isConfirmed && result.value && payroll.id !== undefined) {
-  //       this.leaveService.updatePayroll(result.value, payroll.id).subscribe({
-  //         next: () => {
-  //           Swal.fire('Success', 'Payroll updated successfully', 'success');
-  //           this.getAllPayrolls();
-  //         },
-  //         error: () => Swal.fire('Error', 'Failed to update payroll', 'error')
-  //       });
-  //     }
-  //   });
-  // }
+    //     return {
+    //       id: payroll.id,
+    //       employeeId: payroll.employee.id,
+    //       payDate,
+    //       basicSalary,
+    //       allowances,
+    //       deductions,
+    //       netSalary
+    //     } as PayrollPost;
+    //   }
+    // }).then((result) => {
+    //   if (result.isConfirmed && result.value && payroll.id !== undefined) {
+    //     this.leaveService.updatePayroll(result.value, payroll.id).subscribe({
+    //       next: () => {
+    //         Swal.fire('Success', 'Payroll updated successfully', 'success');
+    //         this.getAllPayrolls();
+    //       },
+    //       error: () => Swal.fire('Error', 'Failed to update payroll', 'error')
+    //     });
+    //   }
+    // });
+    return null;
+  }
   
-  // deletePayroll(payroll: Payroll) {
-  //   Swal.fire({
-  //     title: 'Delete this payroll?',
-  //     html: `
-  //       <p><strong>Employee:</strong> ${payroll.employee.name}</p>
-  //       <p><strong>Date:</strong> ${payroll.payDate}</p>
-  //       <p><strong>Net Salary:</strong> ${payroll.netSalary}</p>
-  //     `,
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Yes, delete',
-  //     cancelButtonText: 'Cancel'
-  //   }).then((result) => {
-  //     if (result.isConfirmed && payroll.id) {
-  //       this.leaveService.deletePayroll(payroll.id).subscribe({
-  //         next: () => {
-  //           Swal.fire('Deleted', 'Payroll deleted', 'success');
-  //           this.getAllPayrolls();
-  //         },
-  //         error: () => Swal.fire('Error', 'Failed to delete payroll', 'error')
-  //       });
-  //     }
-  //   });
-  // }
+  deleteLeave(leave: LeaveGet) {
+    // Swal.fire({
+    //   title: 'Delete this payroll?',
+    //   html: `
+    //     <p><strong>Employee:</strong> ${payroll.employee.name}</p>
+    //     <p><strong>Date:</strong> ${payroll.payDate}</p>
+    //     <p><strong>Net Salary:</strong> ${payroll.netSalary}</p>
+    //   `,
+    //   icon: 'warning',
+    //   showCancelButton: true,
+    //   confirmButtonText: 'Yes, delete',
+    //   cancelButtonText: 'Cancel'
+    // }).then((result) => {
+    //   if (result.isConfirmed && payroll.id) {
+    //     this.leaveService.deletePayroll(payroll.id).subscribe({
+    //       next: () => {
+    //         Swal.fire('Deleted', 'Payroll deleted', 'success');
+    //         this.getAllPayrolls();
+    //       },
+    //       error: () => Swal.fire('Error', 'Failed to delete payroll', 'error')
+    //     });
+    //   }
+    // });
+  }
 
   filteredLeaves(): LeaveGet[] {
     return this.leaves.filter(p =>
