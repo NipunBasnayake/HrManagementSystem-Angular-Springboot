@@ -8,6 +8,8 @@ import { faUsers, faFileAlt, faPlusCircle, faSearch, faEnvelope, faFilter, faEdi
 
 import { PayrollService } from '../../services/payroll.service';
 import { Payroll, PayrollPost } from '../../models/payroll.model';
+import { EmployeeService } from '../../services/employee.service';
+import { Employee } from '../../models/employee.model';
 
 @Component({
   selector: 'app-view-payrolls',
@@ -28,11 +30,16 @@ export class ViewPayrollsComponent {
   faFolderOpen = faFolderOpen;
 
   payrolls: Payroll[] = [];
+  employees: Employee[] = [];
   searchEmployeeId = '';
   searchMonth = '';
   searchYear = '';
 
-  constructor(private payrollService: PayrollService, private router: Router) { }
+  constructor(
+    private payrollService: PayrollService,
+    private employeeService: EmployeeService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.getAllPayrolls();
@@ -56,15 +63,23 @@ export class ViewPayrollsComponent {
       next: (res) => this.payrolls = res,
       error: () => Swal.fire('Error', 'Failed to fetch payrolls', 'error')
     });
+    this.employeeService.getAllEmployees().subscribe({
+      next: (res) => this.employees = res,
+      error: () => Swal.fire('Error', 'Failed to fetch employees', 'error')
+    });
   }
 
   addPayroll() {
+    const employeeOptions = this.employees
+      .map(emp => `<option value="${emp.id}">${emp.id} - ${emp.name}</option>`)
+      .join('');
+  
     Swal.fire({
       title: '<strong>Add New Payroll</strong>',
       html: `
         <div class="swal-form-group">
-          <label for="swal-empId" class="swal-label">Employee ID</label>
-          <input type="number" id="swal-empId" class="swal-input">
+          <label for="swal-empId" class="swal-label">Employee</label>
+          <select id="swal-empId" class="swal-select">${employeeOptions}</select>
         </div>
         <div class="swal-form-group">
           <label for="swal-payDate" class="swal-label">Pay Date</label>
@@ -86,18 +101,18 @@ export class ViewPayrollsComponent {
       showCancelButton: true,
       confirmButtonText: 'Add Payroll',
       preConfirm: () => {
-        const employeeId = parseInt((document.getElementById('swal-empId') as HTMLInputElement).value);
+        const employeeId = parseInt((document.getElementById('swal-empId') as HTMLSelectElement).value);
         const payDate = (document.getElementById('swal-payDate') as HTMLInputElement).value;
         const basicSalary = parseFloat((document.getElementById('swal-basic') as HTMLInputElement).value);
         const allowances = parseFloat((document.getElementById('swal-allowances') as HTMLInputElement).value || '0');
         const deductions = parseFloat((document.getElementById('swal-deductions') as HTMLInputElement).value || '0');
         const netSalary = basicSalary + allowances - deductions;
-
+  
         if (!employeeId || !payDate || isNaN(basicSalary)) {
           Swal.showValidationMessage('Please fill required fields');
           return;
         }
-
+  
         return { employeeId, payDate, basicSalary, allowances, deductions, netSalary } as PayrollPost;
       }
     }).then((result) => {
@@ -111,15 +126,17 @@ export class ViewPayrollsComponent {
         });
       }
     });
-  }
+  }  
 
   updatePayroll(payroll: Payroll) {
     Swal.fire({
       title: '<strong>Update Payroll</strong>',
       html: `
         <div class="swal-form-group">
-          <label for="swal-empId" class="swal-label">Employee ID</label>
-          <input type="number" id="swal-empId" class="swal-input" value="${payroll.employee.id}" readonly>
+          <label for="swal-empId" class="swal-label">Employee</label>
+          <select id="swal-empId" class="swal-select" disabled>
+            <option value="${payroll.employee.id}">${payroll.employee.id} - ${payroll.employee.name}</option>
+          </select>
         </div>
         <div class="swal-form-group">
           <label for="swal-payDate" class="swal-label">Pay Date</label>
@@ -146,12 +163,12 @@ export class ViewPayrollsComponent {
         const allowances = parseFloat((document.getElementById('swal-allowances') as HTMLInputElement).value || '0');
         const deductions = parseFloat((document.getElementById('swal-deductions') as HTMLInputElement).value || '0');
         const netSalary = basicSalary + allowances - deductions;
-
+  
         if (!payDate || isNaN(basicSalary)) {
           Swal.showValidationMessage('Please fill required fields');
           return;
         }
-
+  
         return {
           id: payroll.id,
           employeeId: payroll.employee.id,
@@ -174,7 +191,7 @@ export class ViewPayrollsComponent {
       }
     });
   }
-
+  
   deletePayroll(payroll: Payroll) {
     Swal.fire({
       title: 'Delete this payroll?',
