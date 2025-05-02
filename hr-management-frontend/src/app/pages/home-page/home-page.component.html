@@ -15,8 +15,8 @@
           <button *ngIf="!authService.isLoggedIn()" class="btn btn-primary login-btn" routerLink="/login">
             <i class="fas fa-sign-in-alt me-2"></i> Login to Portal
           </button>
-          <button *ngIf="authService.isLoggedIn()" class="btn btn-success dashboard-btn" routerLink="/employee">
-            <i class="fas fa-tachometer-alt me-2"></i> Go to Emplooye Management
+          <button *ngIf="authService.isLoggedIn()" class="btn btn-success dashboard-btn">
+            <i class="fas fa-arrow-down me-2"></i>Select a Module You Want to Access
           </button>
         </div>
         
