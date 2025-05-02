@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment/environment';
 import { Observable } from 'rxjs';
-import { Payroll, PayrollPost } from '../models/payroll.model';
+import { Payroll, PayrollPost, PayrollPut } from '../models/payroll.model';
 
 @Injectable({
     providedIn: 'root',
@@ -24,7 +24,7 @@ export class PayrollService {
         return this.http.post<Payroll>(this.apiUrl, payroll);
     }
 
-    updatePayroll(payroll: PayrollPost, id: number ): Observable<Payroll> {
+    updatePayroll(payroll: PayrollPut, id: number): Observable<Payroll> {
         return this.http.put<Payroll>(`${this.apiUrl}/${id}`, payroll);
     }
 

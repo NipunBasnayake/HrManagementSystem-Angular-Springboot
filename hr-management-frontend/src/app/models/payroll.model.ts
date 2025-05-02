@@ -20,3 +20,13 @@ export interface PayrollPost {
   deductions?: number;
   netSalary: number;
 }
+
+export interface PayrollPut {
+  id?: number;
+  employeeId: number;
+  payDate: string;
+  basicSalary: number;
+  allowances?: number;
+  deductions?: number;
+  netSalary: number;
+}

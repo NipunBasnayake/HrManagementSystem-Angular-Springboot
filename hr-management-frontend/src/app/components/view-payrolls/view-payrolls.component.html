@@ -13,7 +13,8 @@
 
                 <div class="search-group">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Search by employee ID" [(ngModel)]="searchEmployeeId">
+                    <input type="text" class="search-input" placeholder="Search by employee ID"
+                        [(ngModel)]="searchEmployeeId">
                 </div>
 
                 <div class="search-group">
@@ -54,13 +55,13 @@
                         <td class="text-center">{{ i + 1 }}</td>
                         <td>{{ payroll.employee.id }}</td>
                         <td>{{ payroll.employee.name }}</td>
-                        <td>{{ payroll.payDate | date: 'medium' }}</td>
-                        <td>{{ payroll.basicSalary | currency }}</td>
-                        <td>{{ payroll.allowances | currency }}</td>
-                        <td>{{ payroll.deductions | currency }}</td>
-                        <td>{{ payroll.netSalary | currency }}</td>
-                        <td>{{ payroll.createdAt | date: 'medium' }}</td>
-                        <td>{{ payroll.updatedAt | date: 'medium' }}</td>
+                        <td>{{ payroll.payDate}}</td>
+                        <td>LKR {{ payroll.basicSalary }}</td>
+                        <td>LKR {{ payroll.allowances }}</td>
+                        <td>LKR {{ payroll.deductions }}</td>
+                        <td>LKR {{ payroll.netSalary }}</td>
+                        <td>{{ payroll.createdAt }}</td>
+                        <td>{{ payroll.updatedAt }}</td>
                         <td class="text-center action-buttons">
                             <button class="btn btn-warning btn-action" (click)="updatePayroll(payroll)">
                                 <i class="fas fa-edit me-1"></i> Edit

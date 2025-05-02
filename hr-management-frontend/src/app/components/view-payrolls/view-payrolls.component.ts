@@ -32,7 +32,7 @@ export class ViewPayrollsComponent {
   searchMonth = '';
   searchYear = '';
 
-  constructor(private payrollService: PayrollService, private router: Router) {}
+  constructor(private payrollService: PayrollService, private router: Router) { }
 
   ngOnInit() {
     this.getAllPayrolls();
@@ -153,6 +153,7 @@ export class ViewPayrollsComponent {
         }
 
         return {
+          id: payroll.id,
           employeeId: payroll.employee.id,
           payDate,
           basicSalary,
