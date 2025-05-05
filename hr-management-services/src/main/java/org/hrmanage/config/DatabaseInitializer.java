@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hrmanage.entity.UserEntity;
 import org.hrmanage.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -15,12 +16,15 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final AdminProperties adminProperties;
+
+    @Value("${app.admin.username}")
+    String username;
+    
+    @Value("${app.admin.password}")
+    String password;
 
     @Override
     public void run(String... args) {
-        String username = adminProperties.getUsername();
-        String password = adminProperties.getPassword();
 
         if (username != null && password != null) {
             if (!userRepository.existsByUsername(username)) {
